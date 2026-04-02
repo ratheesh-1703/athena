@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "ATHENA",
+    "slug": "athena",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "android": {
+      "versionCode": 1,
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "RECORD_AUDIO",
+        "CAMERA",
+        "FOREGROUND_SERVICE"
+      ],
+      "package": "com.athena.app"
+    },
+    "ios": {
+      "bundleIdentifier": "com.athena.app",
+      "buildNumber": "1.0.0"
+    },
+    "extra": {
+      "backendUrl": "http://10.0.2.2:5000",
+      "eas": {
+        "projectId": "a6837652-5113-489f-9115-5e08bddff344"
+      }
+    }
+  }
+}
