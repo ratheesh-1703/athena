@@ -7,6 +7,8 @@ ATHENA is a full-stack emergency protection system with:
 - MySQL database
 - Real-time protector alerts using Socket.IO and optional FCM push
 
+**[→ Deployment & Testing Guide](DEPLOYMENT_TEST_GUIDE.md)** — Start here to test and launch with Docker
+
 ## Product Working Model
 
 For the complete start-to-finish operating model (installation, monitoring, triggers, guardian escalation, and protector role functions), see:
@@ -168,6 +170,9 @@ npm start
 
 ```bash
 npm run android
+```
+
+For production builds, set `EXPO_PUBLIC_BACKEND_URL` to your public HTTPS API URL (do not use `localhost` or `10.0.2.2`).
 
 ## Production Deployment (VPS + MySQL)
 
@@ -204,11 +209,85 @@ cp .env.production.example .env
 mysql -u athena -p athena < src/db/schema.sql
 ```
 
-5. Start server with PM2:
+5. Run deployment checks:
+
+```bash
+npm run predeploy:check
+```
+
+6. Start server with PM2:
 
 ```bash
 pm2 start ecosystem.config.js
 pm2 save
+```
+
+### Docker Compose (Backend + MySQL)
+
+Use this for a single-host deployment with Docker.
+
+1. Create backend env file:
+
+```bash
+cd backend
+cp .env.production.example .env
+# edit .env with production values
+```
+
+2. Start the stack:
+
+```bash
+cd ..
+docker compose up -d --build
+```
+
+3. Verify health:
+
+```bash
+curl http://localhost:5000/health
+```
+
+### Quick Start Script (Windows/PowerShell)
+
+Run the automated deployment helper:
+
+```powershell
+# Start all services, run checks, and verify health
+.\deploy.ps1 -Action up
+
+# View logs
+.\deploy.ps1 -Action logs
+
+# Run quick API tests
+.\deploy.ps1 -Action test
+
+# Check container status
+.\deploy.ps1 -Action status
+
+# Stop all services
+.\deploy.ps1 -Action down
+```
+
+### Quick Start Script (Linux/macOS/Bash)
+
+```bash
+# Make script executable
+chmod +x deploy.sh
+
+# Start all services, run checks, and verify health
+./deploy.sh up
+
+# View logs
+./deploy.sh logs
+
+# Run quick API tests
+./deploy.sh test
+
+# Check container status
+./deploy.sh status
+
+# Stop all services
+./deploy.sh down
 ```
 
 ### Mobile (Android + iOS)
@@ -254,7 +333,6 @@ eas build -p ios --profile production
 - iPad screenshots (optional)
 - Subtitle (max 30 chars)
 - Description, keywords, support URL, privacy policy URL
-```
 
 ---
 

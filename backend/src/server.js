@@ -43,13 +43,47 @@ const io = new Server(server, {
 
 setIo(io);
 
-app.use(cors({ origin: parseAllowedOrigins() }));
+const allowedOrigins = parseAllowedOrigins();
+function originChecker(origin, callback) {
+  // allow non-browser requests (no origin)
+  if (!origin) return callback(null, true);
+  if (allowedOrigins === '*' || (Array.isArray(allowedOrigins) && allowedOrigins.includes(origin))) {
+    return callback(null, true);
+  }
+  return callback(new Error('Not allowed by CORS'));
+}
+
+const corsOptions = {
+  origin: originChecker,
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  credentials: true,
+};
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' },
   })
 );
 app.use(express.json({ limit: '10mb' }));
+
+// DEV: log register requests to help debug client payload issues
+app.use((req, res, next) => {
+  try {
+    if (req.path === '/api/auth/register') {
+      console.log('[DEBUG] /api/auth/register incoming', {
+        method: req.method,
+        origin: req.headers.origin,
+        contentType: req.headers['content-type'],
+        body: req.body,
+      });
+    }
+  } catch (err) {
+    // ignore logging errors
+  }
+  return next();
+});
 
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,

@@ -91,7 +91,7 @@ function signToken(user) {
 
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, phone, password, role = 'both', otpVerificationToken } = req.body;
+    const { name, email, phone, password, role = 'both' } = req.body;
     const normalizedRole = normalizeRole(role);
     const roleId = await resolveRoleId(normalizedRole);
 
@@ -99,20 +99,7 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'name, email, phone, password are required' });
     }
 
-    if (!otpVerificationToken) {
-      return res.status(400).json({ message: 'OTP verification is required before registration' });
-    }
-
-    let decodedOtpToken;
-    try {
-      decodedOtpToken = jwt.verify(otpVerificationToken, process.env.JWT_SECRET);
-    } catch {
-      return res.status(401).json({ message: 'Invalid or expired OTP verification token' });
-    }
-
-    if (!decodedOtpToken?.otpVerified || decodedOtpToken?.phone !== phone) {
-      return res.status(401).json({ message: 'Phone number is not OTP verified' });
-    }
+    // OTP verification removed: allow registration without prior OTP in development
 
     const [existing] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
     if (existing.length) {
